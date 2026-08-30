@@ -41,8 +41,19 @@ add_subdirectory(lunasvg)
 # Enable the RmlUi SVG plugin, it is compiled into rmlui_core
 set(RMLUI_SVG_PLUGIN ON CACHE BOOL "" FORCE)
 
-# finally...
+# RmlUi supplies its own /W4 warning level. Temporarily remove the parent
+# project's /W3 so MSVC does not report warning D9025 for every RmlUi source.
+if(MSVC)
+	set(GEARMULATOR_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+	string(REPLACE " /W3" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+endif()
+
 add_subdirectory(RmlUi)
+
+if(MSVC)
+	set(CMAKE_CXX_FLAGS "${GEARMULATOR_CXX_FLAGS}")
+	unset(GEARMULATOR_CXX_FLAGS)
+endif()
 
 target_include_directories(rmlui_core PUBLIC 
 	${CMAKE_CURRENT_LIST_DIR}/RmlUi/Include
