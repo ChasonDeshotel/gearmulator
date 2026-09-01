@@ -100,21 +100,26 @@ CMAKE_LV2 := $(call cmake_bool,$(call enabled,$(LV2)))
 CMAKE_STANDALONE := $(call cmake_bool,$(call enabled,$(STANDALONE)))
 
 # Cache each configured combination, so switching back does not reconfigure.
+# Keep the selector portion compact to leave room for CMake's long object paths
+# on Windows. Product codes: O=osirus, T=ostirus, V=vavra, X=xenia, N=n2x,
+# J=je8086. Format codes: 2=VST2, 3=VST3, A=AU, C=CLAP, L=LV2, S=standalone.
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
-OPTION_PROFILE := $(subst $(SPACE),+,$(strip \
-	$(if $(filter ON,$(CMAKE_OSIRUS)),osirus) \
-	$(if $(filter ON,$(CMAKE_OSTIRUS)),ostirus) \
-	$(if $(filter ON,$(CMAKE_VAVRA)),vavra) \
-	$(if $(filter ON,$(CMAKE_XENIA)),xenia) \
-	$(if $(filter ON,$(CMAKE_NODALRED2X)),n2x) \
-	$(if $(filter ON,$(CMAKE_JE8086)),je8086) \
-	$(if $(filter ON,$(CMAKE_VST2)),vst2) \
-	$(if $(filter ON,$(CMAKE_VST3)),vst3) \
-	$(if $(filter ON,$(CMAKE_AU)),au) \
-	$(if $(filter ON,$(CMAKE_CLAP)),clap) \
-	$(if $(filter ON,$(CMAKE_LV2)),lv2) \
-	$(if $(filter ON,$(CMAKE_STANDALONE)),standalone)))
+PRODUCT_PROFILE := $(subst $(SPACE),,$(strip \
+	$(if $(filter ON,$(CMAKE_OSIRUS)),O) \
+	$(if $(filter ON,$(CMAKE_OSTIRUS)),T) \
+	$(if $(filter ON,$(CMAKE_VAVRA)),V) \
+	$(if $(filter ON,$(CMAKE_XENIA)),X) \
+	$(if $(filter ON,$(CMAKE_NODALRED2X)),N) \
+	$(if $(filter ON,$(CMAKE_JE8086)),J)))
+FORMAT_PROFILE := $(subst $(SPACE),,$(strip \
+	$(if $(filter ON,$(CMAKE_VST2)),2) \
+	$(if $(filter ON,$(CMAKE_VST3)),3) \
+	$(if $(filter ON,$(CMAKE_AU)),A) \
+	$(if $(filter ON,$(CMAKE_CLAP)),C) \
+	$(if $(filter ON,$(CMAKE_LV2)),L) \
+	$(if $(filter ON,$(CMAKE_STANDALONE)),S)))
+OPTION_PROFILE := p$(PRODUCT_PROFILE)-f$(FORMAT_PROFILE)
 GENERATOR_PROFILE := $(subst $(SPACE),-,$(GENERATOR))
 PROFILE := $(GENERATOR_PROFILE)/$(CONFIG)/$(subst ;,+,$(CMAKE_ARCHS))-lto$(LTO_CMAKE)/$(OPTION_PROFILE)
 BUILD_ROOT ?= $(CURDIR)/build
